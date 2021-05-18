@@ -300,9 +300,9 @@ function [eigenValuesCYC_, eigenVectorsCYC_] = floquet(qCYC_, dqdtCYC_, zCYC_, p
     simOptions_.dtOUT = [];                            % time step for numerical output (set it to empty for solver's default output)
     simOptions_.simulateSingleStride = true;           % Simulate only a single stride
 
-    % Small disturbance to compute Floquet multipliers:
+    % Small disturbance to compute finite differences:
     disturbance_ = 1e-6;
-    % Initialize the Jacobian (Monodromy) matrix:
+    % Initialize the Jacobian:
     J_ = zeros(4);
 
     for j_ = 1:4
@@ -314,10 +314,10 @@ function [eigenValuesCYC_, eigenVectorsCYC_] = floquet(qCYC_, dqdtCYC_, zCYC_, p
         distVecMINUS_ = zeros(4,1);
         distVecMINUS_(j_) = -disturbance_;
         [tMINUS_, qMINUS_, dqdtMINUS_, zMINUS_] = HybridDynamics(qCYC_+distVecMINUS_(1:2), dqdtCYC_+distVecMINUS_(3:4), zCYC_, pCYC_, simOptions_);
-        % Monodromy matrix (using central difference derivative estimate):
+        % Jacobian (using central difference derivative estimate):
         J_(:,j_) = [qPLUS_(:,end)-qMINUS_(:,end); dqdtPLUS_(:,end)-dqdtMINUS_(:,end)] ./ (2*disturbance_);
     end
-    % Conpute the eigenvalues and eigenvectors of the Monodromy matrix:
+    % Compute the eigenvalues and eigenvectors of the Jacobian:
     [eigenVectorsCYC_, D_] = eig(J_);
     eigenValuesCYC_  = diag(D_);
 end
