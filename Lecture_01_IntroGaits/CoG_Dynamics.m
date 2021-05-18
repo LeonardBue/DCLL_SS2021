@@ -126,3 +126,44 @@ axis([0,tRun(end),-50,650]);
 title('Running Energies')
 xlabel('Time [s]')
 ylabel('Energy [J]');
+
+
+% Prepare output for direct comparison
+figure('Name','Comparision of walking and running','Units','Normalized','OuterPosition',[0,0,1,1])
+subplot(2,2,1)
+hold on
+plot(tWalk,e_kin_Walk-e_kin_Walk(1))
+plot(tWalk,e_pot_Walk-e_pot_Walk(1))
+plot(tWalk,e_tot_Walk-e_kin_Walk(1)-e_pot_Walk(1))
+axis([0,tWalk(end),-200,100]);
+title('Walking Energies (y-shifted)')
+xlabel('Time [s]')
+ylabel('Energy [J]');
+legend('E_{kin}','E_{pot}','E_{tot}','Location','SouthEast');
+subplot(2,2,2)
+hold on
+plot(tRun,e_kin_Run-e_kin_Run(1))
+plot(tRun,e_pot_Run-e_pot_Run(1))
+plot(tRun,e_tot_Run-e_kin_Run(1)-e_pot_Run(1))
+axis([0,tRun(end),-200,100]);
+title('Running Energies (y-shifted)')
+xlabel('Time [s]')
+ylabel('Energy [J]');
+% To show CoG trajectories, we further integrated forward speed
+x_Walk = cumsum(v_WalkHor)*(tWalk(2)-tWalk(1));
+x_Run = cumsum(v_RunHor)*(tRun(2)-tRun(1));
+
+subplot(2,2,3)
+hold on
+plot(x_Walk,h_Walk)
+axis equal
+title('Walking CoG Motion')
+xlabel('Distance [m]');
+ylabel('Height [m]')
+subplot(2,2,4)
+hold on
+plot(x_Run,h_Run)
+axis equal
+title('Running CoG Motion')
+xlabel('Distance [m]');
+ylabel('Height [m]')
