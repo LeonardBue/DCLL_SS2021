@@ -363,7 +363,7 @@ figure('Name','SLIP model: y and dy of a motion that converges to stable solutio
 grid on; hold on; box on;
 plot(t, [q(2,:).',dqdt(2,:).']);
 legend({'$y$','$\dot{y}$'}, 'interpreter','latex');
-% (i) Now choose one that is just outside the basin of attraction.
+% (ii) Now choose one that is just outside the basin of attraction.
 qIN = [qCYC(1), CHANGEME].';
 dqdtIN = [CHANGEME, dqdtCYC(2)].';
 zIN = zCYC;
