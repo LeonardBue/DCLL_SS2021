@@ -120,7 +120,7 @@ end
 figure('Name','SLIP model: angle of attack with Raibert''s controller','Units','Normalized','OuterPosition',[0.5,0.0,0.5,0.5]);
 grid on; hold on; box on;
 plot(t,angAtt);
-legend({'$\tau_x$','$\tau_y$','$\tau_\phi$','$\tau_{\alpha_L}$','$\tau_{\alpha_R}$','$\tau_{\beta_L}$','$\tau_{\beta_R}$'}, 'interpreter','latex');
+legend({'angle of attack'}, 'interpreter','latex');
 
 %% Do a theoretical analysis of stability:
 % Find periodic motion:
