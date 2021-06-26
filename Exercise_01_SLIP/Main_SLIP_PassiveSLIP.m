@@ -143,7 +143,7 @@ dqdt0 = [dx, dy]';
 
 % Since this is obviously not periodic, we need to change the angle of
 % attack:
-angAtt = CHANGEME;
+angAtt = 15*pi/180;
 p(5) = angAtt;
 [t, q, dqdt, z] = HybridDynamics(q0, dqdt0, z0, p, simOptions);
 
@@ -215,13 +215,13 @@ disp(num2str([q(:,end)-qCYC; dqdt(:,end)-dqdtCYC]));
 % ************************************
 
 % Fix the speed:
-dx =  CHANGEME;
+dx = 2.5;
 % Make initial guess of the periodic angle-of-attack:
-angAttINIT =  CHANGEME;
+angAttINIT = pi/8;
 
 % Solve the non-linear equation defined in 'residual()', this time with
 % respect to the angle-of-attack:
-angAttCYC = fsolve( CHANGEME, angAttINIT, numOPTS);
+angAttCYC = fsolve( @(angAtt)residual(y,dx,zCYC,pCYC,angAtt), angAttINIT, numOPTS);
 disp(['The required angle-of-attack of the periodic gait is: ',num2str(angAttCYC)]);
 
 % Run a one-step simulation to see that the solution is indeed periodic, 
@@ -260,7 +260,7 @@ if all(abs(eigenValuesCYC)<1)
 elseif any(abs(eigenValuesCYC)>1)
     disp('Solution is unstable')
 else
-    disp('CHANGEME')
+    disp('new periodic gate')
     % What is the situation we haven't covered? And what does it mean?
 end
 disp('...found the following Eigenvectors:');
@@ -289,14 +289,14 @@ disp('What do these eigenvector/eigenvalue pairs mean, physically?')
 [x,y,dx,dy] = contStates(qCYC, dqdtCYC);
 [g,l_0,m_0,k,~] = systParam(pCYC);
 % Compute the nominal amount of energy of the corresponding gait:
-E_nom =  CHANGEME;
+E_tot = m_0*g*y + 1/2*m_0*(dx^2 + dy^2); % CHANGEME;
 
 % Number of sample points (of different disturbances):
 n = 50;
 % Variations in forward velocity:
 dx_in = linspace(2.3, 2.6, n);
 % Energy-invariant change in hopping height:
-y_in  =  CHANGEME;
+y_in  = (E_tot - 0.5*dx_in.^2)/g; % CHANGEME;
 
 % Supress the animations for now:
 simOptions.graphOUTPUT = [];
@@ -692,7 +692,7 @@ function [eigenValuesCYC_, eigenVectorsCYC_] = floquet(qCYC_, dqdtCYC_, zCYC_, p
         distVecMINUS_(j_+1) = -disturbance_;
         [tMINUS_, qMINUS_, dqdtMINUS_, zMINUS_] = HybridDynamics(qCYC_+distVecMINUS_(1:2), dqdtCYC_+distVecMINUS_(3:4), zCYC_, pCYC_, simOptions_);
         % Monodromy matrix (using central difference derivative estimate):
-        J_(:,j_) = [qPLUS_(2,end)-qMINUS_(2,end);  CHANGEME_ByAdding_dqdt] ./ (2*disturbance_);
+        J_(:,j_) = [qPLUS_(2,end)-qMINUS_(2,end);  dqdtPLUS_(2,end) - dqdtMINUS_(2, end); zPLUS_(2,end) - zMINUS_(2,end)] ./ (2*disturbance_);
     end
     % Conpute the eigenvalues and eigenvectors of the Monodromy matrix:
     [eigenVectorsCYC_, D_] = eig(J_);
