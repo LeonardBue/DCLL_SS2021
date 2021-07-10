@@ -2,7 +2,7 @@
 %
 %    Script: Main_SLIP_PassiveSLIP
 %
-% Main script for exercise_01 (incomplete).
+% Main script for exercise_01 (solution).
 %
 % This MATLAB script runs simulations of a simple SLIP (Spring Loaded 
 % Inverted Pendulum) model in 2D, finds its periodic motions, and analyzes
@@ -35,21 +35,13 @@
 
 
 %% Initial Setup
-
-% ************************************
-% ************************************
-% TASK 0: RUN THIS CODE SECTION TO INITIALIZE THE FRAMEWORK
-% ************************************
-% ************************************
-
 % Make a clean sweep:
 clear all
 close all
 clc
-CHANGEME = 0;
 % Define the system and add all necessary folders to the path:
 % Define the model:
-modelName = 'SLIP_incomplete';
+modelName = 'SLIP';
 % Define the controller:
 controllerName = 'PassiveSLIP'; 
 % Move one folder level up and include the library folders
@@ -113,13 +105,6 @@ simOptions.simulateSingleStride = false;     % Do a continuous simulation
 simOptions.controller = @Controller_PassiveSLIP;
 
 %% (a) Run event-based simulation for different conditions:
-
-% ************************************
-% ************************************
-% TASK 5-1: RUN THIS TO CHECK IF YOUR DYNAMICS WORK CORRECTLY
-% ************************************
-% ************************************
-
 % Hopping in place
 [t, q, dqdt, z] = HybridDynamics(q0, dqdt0, z0, p, simOptions);
 
@@ -135,21 +120,13 @@ dx = 1;
 dqdt0 = [dx, dy]';
 [t, q, dqdt, z] = HybridDynamics(q0, dqdt0, z0, p, simOptions);
 
-% ************************************
-% ************************************
-% TASK 5-2: GET A ROUGHLY PERIODIC MOTION WITH dx=1
-% ************************************
-% ************************************
-
 % Since this is obviously not periodic, we need to change the angle of
 % attack:
-angAtt = 15*pi/180;
+
+angAtt = 15*pi/180; % Gives a roughly periodic motion
+
 p(5) = angAtt;
 [t, q, dqdt, z] = HybridDynamics(q0, dqdt0, z0, p, simOptions);
-
-% We will solve for a periodic solution numerically below, but first
-% try to manually change angAtt and see how close you can get to a
-% periodic motion.
 
 %% (b) Create a periodic gait
 % (i) Find the right forward speed
@@ -158,13 +135,6 @@ p(5) = angAtt;
 % given angle-of-attack. That is, we look for states in which the model
 % is started and that are reached again at the end of one stride.  It
 % turns out that it is sufficent to only alter the forward velocity. 
-
-% ************************************
-% ************************************
-% TASK 6-1: EXECUTE THE CODE IN THIS SECTION AND CHECK IF IT CREATES A
-% PERIODIC TRAJECTORY
-% ************************************
-% ************************************
 
 % Use the initial velocity from before as initial guess for a periodic
 % trajectory:
@@ -207,21 +177,18 @@ disp(num2str([q(:,end)-qCYC; dqdt(:,end)-dqdtCYC]));
 % In the second approach, we define a forward speed and search for the
 % correct angle-of-attack that corresponds to periodic motion.
 
-% ************************************
-% ************************************
-% TASK 6-2: COMPLETE THE CODE IN THIS SECTION TO FIND THE CORRECT
-% ANGLE-OF-ATTACK FOR A FIXED VELOCITY dx
-% ************************************
-% ************************************
-
 % Fix the speed:
-dx = 2.5;
+dx = 1;     % unstable
+dx = 2.5;   % stable
+
 % Make initial guess of the periodic angle-of-attack:
 angAttINIT = pi/8;
 
 % Solve the non-linear equation defined in 'residual()', this time with
 % respect to the angle-of-attack:
-angAttCYC = fsolve( @(angAtt)residual(y,dx,zCYC,pCYC,angAtt), angAttINIT, numOPTS);
+
+angAttCYC = fsolve(@(angAtt)residual(y,dx,zCYC,p,angAtt), angAttINIT, numOPTS);
+
 disp(['The required angle-of-attack of the periodic gait is: ',num2str(angAttCYC)]);
 
 % Run a one-step simulation to see that the solution is indeed periodic, 
@@ -238,15 +205,8 @@ disp([newline, 'Deviation after one step: ']);
 disp(num2str([q(:,end)-qCYC; dqdt(:,end)-dqdtCYC]));
 
 
+
 %% (c) Stability analysis
-
-% ************************************
-% ************************************
-% TASK 7-1: COMPLETE THE NESTED FUNCTION floquet AND RUN THIS SECTION
-% TO CHECK STABILITY OF THE SOLUTION
-% ************************************
-% ************************************
-
 % The stability of the linearized system is evaluated by computing the
 % Floquet multipliers (Eigenvalues of the Monodromy matrix):
 [eigenValuesCYC,eigenVectorsCYC] = floquet(qCYC, dqdtCYC, zCYC, pCYC);
@@ -260,43 +220,29 @@ if all(abs(eigenValuesCYC)<1)
 elseif any(abs(eigenValuesCYC)>1)
     disp('Solution is unstable')
 else
-    disp('new periodic gate')
     % What is the situation we haven't covered? And what does it mean?
+    disp('Solution is marginally stable')
 end
 disp('...found the following Eigenvectors:');
 disp(eigenVectorsCYC);
-disp('What do these eigenvector/eigenvalue pairs mean, physically?')
-% Post to the forum your interpretation of the eigenvector/eigenvalue
-% pair. Hint: try comparing several periodic orbits, both stable and
-% unstable. Are there any eigenvalues that don't change? What do these
-% mean?
 
 %% (d) Variation on constant energy level:
 % We now vary the forward velocity dx and the hopping height y, such that
 % the total energy of the system does not change.
 
-% ************************************
-% ************************************
-% TASK 9-1: CREATE A GAIT WITH dx=2.5 USING THE CODE IN SECTION (c-ii);
-% TASK 9-2: COMPLETE THE CODE BELOW TO CREATE A SET OF INITIAL
-% CONDITIONS WITH THE SAME ENERGY LEVEL AND SIMULATE ONE STEP FOR EACH
-% OF THEM; 
-% TASK 9-3: PLOT A FIRST ORDER RETURN MAPS
-% ************************************
-% ************************************
-
 % Extract individual states and parameters:
 [x,y,dx,dy] = contStates(qCYC, dqdtCYC);
 [g,l_0,m_0,k,~] = systParam(pCYC);
 % Compute the nominal amount of energy of the corresponding gait:
-E_tot = m_0*g*y + 1/2*m_0*(dx^2 + dy^2); % CHANGEME;
+
+E_nom = 0.5*m_0*dx^2 + m_0*g*y;
 
 % Number of sample points (of different disturbances):
 n = 50;
 % Variations in forward velocity:
 dx_in = linspace(2.3, 2.6, n);
 % Energy-invariant change in hopping height:
-y_in  = (E_tot - 0.5*dx_in.^2)/g; % CHANGEME;
+y_in  = E_nom - (0.5*dx_in.^2)/g;
 
 % Supress the animations for now:
 simOptions.graphOUTPUT = [];
@@ -339,22 +285,14 @@ axis tight
 xlabel('y before stride')
 ylabel('y after stride')
 
-% ************************************
-% ************************************
-% TASK 10: EVALUATE THE CODE BELOW WITH TWO DIFFERENT INITIAL
-% VELOCITIES dx 
-% ************************************
-% ************************************
 
 %% (e) Compare a couple of steps that are started closely to the second 
 %% (stable) fixed point for a starting point inside and outside the 
 %% basin of attraction:  
-% (i) Choose initial conditions that start inside the basin of
-% attraction. Read the return map to find a velocity that should be
-% inside the basin. Make sure to choose a height that corresponds to
-% the same energy level!
-qIN = [qCYC(1), CHANGEME].';
-dqdtIN = [CHANGEME, dqdtCYC(2)].';
+% (i) starting inside the basin of attraction (using the previously
+% computed states at iteration 10: 
+qIN = [qCYC(1), y_in(10)].';
+dqdtIN = [dx_in(10), dqdtCYC(2)].';
 zIN = zCYC;
 simOptions.tMAX = 100;      % Simulation duration
 simOptions.simulateSingleStride = false;     % Do a continuous simulation
@@ -363,9 +301,10 @@ figure('Name','SLIP model: y and dy of a motion that converges to stable solutio
 grid on; hold on; box on;
 plot(t, [q(2,:).',dqdt(2,:).']);
 legend({'$y$','$\dot{y}$'}, 'interpreter','latex');
-% (ii) Now choose one that is just outside the basin of attraction.
-qIN = [qCYC(1), CHANGEME].';
-dqdtIN = [CHANGEME, dqdtCYC(2)].';
+% (ii) starting outside the basin of attraction (using the previously
+% computed states at iteration 9: 
+qIN = [qCYC(1), y_in(9)].';
+dqdtIN = [dx_in(9), dqdtCYC(2)].';
 zIN = zCYC;
 simOptions.tMAX = 55;      % Simulation duration
 simOptions.simulateSingleStride = false;     % Do a continuous simulation
@@ -378,13 +317,6 @@ legend({'$y$','$\dot{y}$'}, 'interpreter','latex');
 
 %% (f) Perform a continuation study
 % (i) Periodic solutions for larger hopping heights.
-
-% ************************************
-% ************************************
-% TASK 11-1: RUN THE CODE IN THIS SECTION, OBSERVE A SET OF SOLUTIONS
-% AUTOMATICALLY FOUND
-% ************************************
-% ************************************
 
 % Consider the same periodic solution we just found and analyzed. We
 % now want to find all possible solutions with the same
@@ -438,18 +370,11 @@ end
 % We now want to use the same continuation routine to find periodic
 % solutions with smaller hopping heights.
 
-% ************************************
-% ************************************
-% TASK 11-2: COMPLETE THE CODE BELOW TO FIND A SET OF SOLUTIONS FOR
-% DECREASING HOPPING HEIGHTS
-% ************************************
-% ************************************
-
 % Vector of heights for which we are looking for periodic motions:
-solution.y = CHANGEME;
+solution.y = qCYC_start(2):-d:0.5;
 % Initialize the corresponding vector of forward speeds (these are to
 % be determined):
-solution.dx = CHANGEME;
+solution.dx = nan(size(solution.y));
 
 % Again, we use the same starting point as the initial guess for
 % finding the first solution in the continuation procedure:
@@ -490,13 +415,6 @@ end
 % of solutions. To do this, we have to compute the initial guess at each
 % iteration by extrapolation from prevously found solutions.
 
-% ************************************
-% ************************************
-% TASK 12: COMPLETE THE CODE BELOW TO IMPLEMENT CONTINUATION AND
-% DISCOVER THE SOLUTION BRANCH
-% ************************************
-% ************************************
-
 % Number of solutions to search (# of iterations in the continuation):
 N = 200;
 % Initialize the solution vectors for heights and speeds:
@@ -522,8 +440,11 @@ solution.graph = line(solution.dx, solution.y, 'marker','.', 'markersize',15, 'c
 % initialize the continuation procedure.
 yINIT  = solution.y(1) - 0.05;   % A small deviation in the apex height
 dxINIT = solution.dx(1);
-% Call the root-search function:
-solutionCYC = fsolve(CHANGEME, CHANGEME, numOPTS);
+% Call the root-search function (note that, since fsolve expects a
+% function of a single argument but we want to find a solution in both
+% height y and speed dx, we use x_=[y;dx] as the residual function
+% argument): 
+solutionCYC = fsolve(@(x_)residual(x_(1),x_(2),zCYC,pCYC,angAtt), [yINIT;dxINIT], numOPTS);
 
 % Store and display the result:
 solution.y(2)  = solutionCYC(1);
@@ -537,10 +458,10 @@ drawnow;
 % solution along the branch.
 for i = 3:N
     % Initial guess for the next solution:
-    yINIT  = CHANGEME;
-    dxINIT = CHANGEME;
+    yINIT  = 2*solution.y(i-1) - solution.y(i-2);
+    dxINIT = 2*solution.dx(i-1) - solution.dx(i-2);
     % Call the root-search function:
-    solutionCYC = fsolve(CHANGEME,  CHANGEME, numOPTS);
+    solutionCYC = fsolve(@(x_)residual(x_(1),x_(2),zCYC,pCYC,angAtt), [yINIT;dxINIT], numOPTS);
 
     % Note: The root-search above does not guarantee that the new solution
     % is a fixed desired distance d away from the previous solution (as in
@@ -559,13 +480,6 @@ end
 
 
 %% (iv) Check stability along the branch of solutions
-
-% ************************************
-% ************************************
-% TASK 13: EXECUTE THIS SECTION TO CHECK STABILITY OF THE SOLUTIONS
-% ALONG THE BRANCH
-% ************************************
-% ************************************
 
 % The stability of the linearized system is evaluated by computing the
 % Floquet multipliers (eigenvalues of the Monodromy matrix)
@@ -653,12 +567,6 @@ end
 % OUTPUT:   eigenValuesCYC  -- eigenvalues of the solution;
 %           eigenVectorsCYC -- eigenvectors of teh solution.
 % 
-
-
-% BONUS question: this implementation of floquet analysis relies on
-% numerical finite differences, which is notoriously brittle.
-% How could the Floquet analysis be made more reliable?
-% Post your ideas in the forum, extra points for implementing them.
 function [eigenValuesCYC_, eigenVectorsCYC_] = floquet(qCYC_, dqdtCYC_, zCYC_, pCYC_)
     % Define simulation options:
     simOptions_.tSTART = 0;                            % initial time
@@ -674,12 +582,6 @@ function [eigenValuesCYC_, eigenVectorsCYC_] = floquet(qCYC_, dqdtCYC_, zCYC_, p
     % Initialize the Jacobian (Monodromy) matrix:
     J_ = zeros(3);
 
-% ************************************
-% ************************************
-% TASK 7-1: COMPLETE THE CODE BELOW TO COMPUTE THE MONODROMY MATRIX
-% ************************************
-% ************************************
-
     for j_ = 1:3
         % The x-position does not stay the same after a step, so we do
         % not perturb it in calculation of the Floquet multipliers:
@@ -692,7 +594,7 @@ function [eigenValuesCYC_, eigenVectorsCYC_] = floquet(qCYC_, dqdtCYC_, zCYC_, p
         distVecMINUS_(j_+1) = -disturbance_;
         [tMINUS_, qMINUS_, dqdtMINUS_, zMINUS_] = HybridDynamics(qCYC_+distVecMINUS_(1:2), dqdtCYC_+distVecMINUS_(3:4), zCYC_, pCYC_, simOptions_);
         % Monodromy matrix (using central difference derivative estimate):
-        J_(:,j_) = [qPLUS_(2,end)-qMINUS_(2,end);  dqdtPLUS_(2,end) - dqdtMINUS_(2, end); zPLUS_(2,end) - zMINUS_(2,end)] ./ (2*disturbance_);
+        J_(:,j_) = [qPLUS_(2,end)-qMINUS_(2,end); dqdtPLUS_(:,end)-dqdtMINUS_(:,end)] ./ (2*disturbance_);
     end
     % Conpute the eigenvalues and eigenvectors of the Monodromy matrix:
     [eigenVectorsCYC_, D_] = eig(J_);
