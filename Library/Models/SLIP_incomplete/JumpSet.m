@@ -60,7 +60,7 @@ function evntVal = JumpSet(t, q, dqdt, z, p, ControllerFcn)
     % *******
     % Event 1: Detect touch-down
     if phase == 0 %(i.e., in flight)
-        evntVal(1) = 
+        evntVal(1) = l_0 * cos(angAtt) - y;
     else
         % Only detect this event during flight
         evntVal(1) = -1;
@@ -69,7 +69,8 @@ function evntVal = JumpSet(t, q, dqdt, z, p, ControllerFcn)
     % *******
     % Event 2: Detect lift-off
     if phase == 1 %(i.e., in stance)
-        evntVal(2) = 
+        leg_length = sqrt(y^2 + (x-contPt)^2);
+        evntVal(2) = leg_length - l_0;
     else
         % Only detect this event during stance
         evntVal(2) = -1;
@@ -78,7 +79,7 @@ function evntVal = JumpSet(t, q, dqdt, z, p, ControllerFcn)
     % *******
     % Event 3: Detect apex transit
     if phase == 2 %(i.e., in flight and after passing the contact point)
-        evntVal(3) = 
+        evntVal(3) = -dydt;
 	else
         % Only detect this event during flight after stance
         evntVal(3) = -1;

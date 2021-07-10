@@ -46,11 +46,17 @@ function ddqddt = FlowMap(t, q, dqdt, z, p, ControllerFcn)
     % Compute COM-accelerations according to the phase:
     switch phase
         case {0,2} %(flight)
-            ddxddt = 
-            ddyddt = 
+            ddxddt =  0;
+            ddyddt = -g;
         case 1 %(stance)
-            ddxddt = 
-            ddyddt = 
+            % compute leg length and  leg angle
+            l_leg = sqrt((x-contPt)^2 + y^2);
+            gamma = atan2(x-contPt, y);
+            % compute spring forces
+            f_spring = k * (l_0-l_leg);
+            % CoM accelerations
+            ddxddt = f_spring * sin(gamma) / m_0;
+            ddyddt = f_spring * cos(gamma) / m_0;
     end
     ddqddt = [ddxddt, ddyddt].';
 end

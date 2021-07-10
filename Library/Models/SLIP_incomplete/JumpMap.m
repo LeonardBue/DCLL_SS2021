@@ -62,18 +62,18 @@ function [qPLUS, dqdtPLUS, zPLUS, endsStride] = JumpMap(t, qMINUS, dqdtMINUS, zM
     % Event 4: fall (y==0 in any phase)
     switch event
         case 1 % Event 1: Detect touch-down
-            contPtPLUS = 
-            phasePLUS  = 
+            contPtPLUS = xMINUS + l_0 * sin(angAtt);
+            phasePLUS  = 1;
             % Intermediate event. Simulation continues
             endsStride = false; 
         case 2 % Event 2: Detect lift-off
-            contPtPLUS = 
-            phasePLUS  = 
+            contPtPLUS = contPtMINUS;
+            phasePLUS  = 2;
             % Intermediate event. Simulation continues
             endsStride = false; 
         case 3 % Event 3: detect apex transit (dy==0 during flight)
-            contPtPLUS =
-            phasePLUS  =
+            contPtPLUS = contPtMINUS;
+            phasePLUS  = 0;
             % This event marks the end of the stride
             endsStride = true;
         case 4 % Event 4: Detect fall (y==0)
