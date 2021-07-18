@@ -178,7 +178,7 @@ disp(num2str([q(:,end)-qCYC; dqdt(:,end)-dqdtCYC]));
 % correct angle-of-attack that corresponds to periodic motion.
 
 % Fix the speed:
-dx = 1;     % unstable
+% dx = 1;     % unstable
 dx = 2.5;   % stable
 
 % Make initial guess of the periodic angle-of-attack:
@@ -500,7 +500,7 @@ for i = 1:N
 end
 
 % plot the individual eigenvalues:
-figure('Name','SLIP model: dx and y of periodic solutions','WindowStyle','docked');
+figure('Name','SLIP model: dx and y of periodic solutions');%,'WindowStyle','docked');
 grid on; hold on; box on;
 xlabel('Forward velocity, dx');
 ylabel('Height at apex, y');
