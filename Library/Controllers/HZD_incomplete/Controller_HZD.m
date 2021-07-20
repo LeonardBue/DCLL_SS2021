@@ -41,25 +41,25 @@ function tau_joint = Controller_HZD(t, q, dqdt, z, p)
 
     %%%% CODE 1.4.1 complete the code below
     % Compute the current phase variable and its time derivative:
-    th     = ChangeMe;
-    dth_dq = ChangeMe;
+    th     = [-1, 1/2, 0, 0, 0] * q;
+    dth_dq = [-1, 1/2, 0, 0, 0];
     dth_dt = dth_dq*dqdt;
 
     % Compute the constraint function hD and the relevant derivatives:
     [hD, dhD_dth, ddhD_ddth] = targetEvolution(th);
     
-    % Compute the constraint error, and its derivatives
-    y     = ChangeMe;
-    dy_dq = ChangeMe;
-    dy_dt = dy_dq*dqdt;
-    
     % Set up the components of the EoM:
     M    = MassMatrix(q,p);
     f_cg = F_CoriGrav(q,dqdt,p);
     S    = [zeros(1,4); eye(4)];
+    
+    % Compute the constraint error, and its derivatives
+    y     = q(2:5) - hD;
+    dy_dq = S' - dhD_dth*dth_dq;
+    dy_dt = dy_dq*dqdt;
 
     % Compute controls required to remain on the virtual constraints
-    tau_constraint = ChangeMe*zeros(4,1);
+    tau_constraint = (dy_dq* (M\S)) \ (ddhD_ddth*dth_dt.^2 - dy_dq*(M\f_cg));
     %%%% End 1.4.1
     
     %%%% CODE 2.1.1

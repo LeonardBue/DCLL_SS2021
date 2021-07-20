@@ -85,14 +85,14 @@ dq_dt0 = [dq1_dt, dq2_dt, dq3_dt, dq4_dt, dq5_dt].';
 % use our function h_D. 
 %%%% CODE 1.5.2 complete the following %%%%
 % First we need to know our phase
-th     = ChangeMe;
-dth_dt = ChangeMe;
+th     = [-1, 1/2, 0, 0, 0] * q0;
+dth_dt = [-1, 1/2, 0, 0, 0] * dq_dt0;
 [hD, dhD_dth, ddhD_ddth] = targetEvolution(th);
 dhD_dt = dhD_dth*dth_dt; % compute the time-derivative of h_D
 
 % Use these as initial conditions:
-q0     = q0; % ChangeMe
-dq_dt0 = dq_dt0; % ChangeMe
+q0     = [q0(1);hD]; % ChangeMe
+dq_dt0 = [dq_dt0(1);dhD_dt]; % ChangeMe
 %%%% End 1.5.2 %%%%
 
 % No discrete states:

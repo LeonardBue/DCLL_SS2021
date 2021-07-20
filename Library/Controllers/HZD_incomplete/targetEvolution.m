@@ -45,7 +45,7 @@ function [hD,dhD_dth,ddhD_ddth] = targetEvolution(th)
     % The stance hip is set such as to keep the MB pitch fixed:
     hD(2) = phi_D - th;
     % The swing hip is set such as for the swing leg to mirror the stance leg:
-    hD(3) = - phi_D - th - hD(4)/2;
+    hD(3) = th - phi_D - hD(4)/2;
     %%%% End 1.2.2
 
     
@@ -62,7 +62,7 @@ function [hD,dhD_dth,ddhD_ddth] = targetEvolution(th)
     end
     dhD_dth(1) = 0;
     dhD_dth(2) = -1;
-    dhD_dth(3) = -1 - 1/2*dhD_dth(4);
+    dhD_dth(3) = 1 - 1/2*dhD_dth(4);
 
     
     % Compute second derivatives:
