@@ -45,6 +45,7 @@ function VisualizeConstraints()
     % Display results:
     figure(101);
     clf;
+    xlim([-0.3, 0.3])
     box on; grid on; hold on
     subplot(2, 1, 1)
     plot(theta, hD, 'linewidth', 2);
@@ -55,4 +56,5 @@ function VisualizeConstraints()
     plot(theta, dhD_dth, 'linewidth', 2);
     title('$\frac{\partial h_D}{\partial \theta}$', 'interpreter', 'latex')
     set(gca,'FontSize',20)
+    
 end
