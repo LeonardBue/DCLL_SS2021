@@ -85,8 +85,8 @@ dq_dt0 = [dq1_dt, dq2_dt, dq3_dt, dq4_dt, dq5_dt].';
 % use our function h_D. 
 %%%% CODE 1.5.2 complete the following %%%%
 % First we need to know our phase
-th     = [-1, 1/2, 0, 0, 0] * q0;
-dth_dt = [-1, 1/2, 0, 0, 0] * dq_dt0;
+th     = -q0(1) + q0(2)/2;
+dth_dt = -dq_dt0(1) + dq_dt0(2)/2;
 [hD, dhD_dth, ddhD_ddth] = targetEvolution(th);
 dhD_dt = dhD_dth*dth_dt; % compute the time-derivative of h_D
 
@@ -127,8 +127,8 @@ legend({'$q_2$','$q_3$','$q_4$','$q_5$'}, 'interpreter','latex');
 % Reconstruct theta and dthetadt for each timestep from the trajectories q,
 % dqdt:
 %%%% CODE 3.1.3 complete this ****
-theta_actual     = ChangeMe;
-dtheta_dt_actual = ChangeMe;
+theta_actual     = -q(1,:) + q(2,:)/2;
+dtheta_dt_actual = -dqdt(1,:) + 1/2*dqdt(2,:);
 
 % Run the zeroDynamics function to get predictions of the phase
 [t_predicted, theta_predicted, dtheta_dt_predicted] = zeroDynamics(theta_actual(1),dtheta_dt_actual(1));
@@ -142,9 +142,15 @@ plot(theta_predicted, dtheta_dt_predicted,'r--');
 
 %%%% CODE 3.1.4 complete this ****
 % Reconstruct the trajectory for the error y = (q_a - h_d) from your
-% simulated data.
-
-y = ChangeMe;
+% simulated data. 
+q_a = q(2:5,:);
+y = zeros(size(q_a));
+H_d = zeros(size(q_a));
+for i = 1:size(t,2)
+    h_d = targetEvolution(theta_actual(i));
+    y(:, i) = q_a(:, i) - h_d;
+    H_d(:, i) = h_d;
+end
 
 figure('Name','HZD Walker: Constraints','WindowStyle','docked')
 grid on; hold on; box on;

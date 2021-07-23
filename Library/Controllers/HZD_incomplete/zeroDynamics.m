@@ -41,10 +41,11 @@ function [t, theta, dtheta_dt] = zeroDynamics(theta0, dtheta0)
 
         %%%% CODE 3.1.1 complete this code %%%%
         % Find the map T, to recover q and dqdt from theta and hD.
-        T = ChangeMe;
-        q = T*ChangeMe;
+        T = [-1, 1/2, 0, 0, 0;...
+            zeros(4,1), eye(4)];
+        q = T*[theta; hD];
         
-        dq_dth = ChangeMe;
+        dq_dth = T*[1; dhD_dth];
         dq_dt  = dq_dth*dtheta_dt;
         %%%% End 3.1.1 %%%%
 
@@ -58,7 +59,7 @@ function [t, theta, dtheta_dt] = zeroDynamics(theta0, dtheta0)
 
         %%%% CODE 3.1.2 complete below %%%%
         % Compute the acceleration of the phase variable theta
-        ddtheta_ddt = ChangeMe;
+        ddtheta_ddt = (TM(1,1) + TM(1, 2:5)*dhD_dth) \ (Tf_cg(1) - TM(1, 2:5)*ddhD_ddth*dtheta_dt^2);
         %%%% End 3.1.2 %%%%
 
         dx = [dtheta_dt;

@@ -1,6 +1,6 @@
 % *************************************************************************
 %
-%   tau = Controller_HZD(t, q, dqdt, z, p)
+% tau = Controller_HZD(t, q, dqdt, z, p)
 %
 % This is a Hybrid Zero Dynamics (HZD) controller for a 5-link bipedal
 % model in 2D.
@@ -41,7 +41,7 @@ function tau_joint = Controller_HZD(t, q, dqdt, z, p)
 
     %%%% CODE 1.4.1 complete the code below
     % Compute the current phase variable and its time derivative:
-    th     = [-1, 1/2, 0, 0, 0] * q;
+    th     = -q(1) + q(2)/2;
     dth_dq = [-1, 1/2, 0, 0, 0];
     dth_dt = dth_dq*dqdt;
 
@@ -59,7 +59,7 @@ function tau_joint = Controller_HZD(t, q, dqdt, z, p)
     dy_dt = dy_dq*dqdt;
 
     % Compute controls required to remain on the virtual constraints
-    tau_constraint = (dy_dq* (M\S)) \ (ddhD_ddth*dth_dt.^2 - dy_dq*(M\f_cg));
+    tau_constraint = (dy_dq*(M\S)) \ (ddhD_ddth*dth_dt.^2 - dy_dq*(M\f_cg));
     %%%% End 1.4.1
     
     %%%% CODE 2.1.1
@@ -68,7 +68,7 @@ function tau_joint = Controller_HZD(t, q, dqdt, z, p)
     Kp = 50;
     Kd = 2*sqrt(Kp);
     % Compute required torques to covnerge back to the virtual constraints:
-    tau_control = ChangeMe*zeros(4,1);
+    tau_control = (dy_dq*(M\S)) \ (- Kd*dy_dt - Kp*y);
     %%%% End 2.1.1
     
     % Extract active joint torques:

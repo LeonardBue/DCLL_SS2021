@@ -19,7 +19,7 @@ function [hD,dhD_dth,ddhD_ddth] = targetEvolution(th)
     beta_max    = -0.9; % Maximal knee bend during swing
     beta_D      = -0.1; % Desired knee angle during stance
     beta_offset = 0.01; % Overextension of the swing knee
-    phi_D       = 0;    % Desired pitch angle
+    phi_D       = -0.1;    % Desired pitch angle
 
 
     % Compute desired positions:
@@ -41,9 +41,9 @@ function [hD,dhD_dth,ddhD_ddth] = targetEvolution(th)
 
     %%%% CODE 1.2.2 complete this (use constants defined above %%%%
     % The stance knee is kept to a fixed angle of beta_D, almost straight:
-    hD(1) = beta_offset + beta_D;
+    hD(1) = beta_D;
     % The stance hip is set such as to keep the MB pitch fixed:
-    hD(2) = phi_D - th;
+    hD(2) = -beta_D/2 - phi_D - th;
     % The swing hip is set such as for the swing leg to mirror the stance leg:
     hD(3) = th - phi_D - hD(4)/2;
     %%%% End 1.2.2
